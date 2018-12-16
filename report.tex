@@ -1,0 +1,393 @@
+\documentclass[a4paper, 12pt]{article}
+
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage[document]{ragged2e}
+\usepackage[left=15mm,right=15mm,top=20mm,bottom=20mm]{geometry}
+\usepackage{wrapfig}
+\usepackage{setspace}
+
+\graphicspath{ {./images/} }
+
+\title{Foundation of Machine Learning Coursework 1 Report}
+
+\author{Hang Su  30005019}
+
+\date{\today}
+
+\begin{document}
+\linespread{1.5}
+\maketitle
+
+\section{Classification}
+\label{sec:Classification}
+
+\subsection{Data 1: Separate 2 Gaussians}
+
+First, generating 2 data sets from two 2-dimensional Gaussian distributions
+\begin{equation*}
+    x_a \sim N(x|m_a,S_a), x_b \sim N(x|m_b, S_b)
+\end{equation*}
+where the mean vectors are
+$m_a =  
+\Big( 
+\begin{tabular}{c}
+     2  \\
+     2
+\end{tabular}
+ \Big)$
+ ,
+$m_b =  
+\Big( 
+\begin{tabular}{c}
+     5  \\
+     7
+\end{tabular}
+ \Big)$
+ and the covariance matrices are
+ $S_a = 
+ \Big(
+ \begin{array}{cc}
+      2 & 1 \\
+      1 & 2 
+ \end{array}
+ \Big)$
+ ,
+ $S_b = 
+ \Big(
+ \begin{array}{cc}
+      2 & 1 \\
+      1 & 2 
+ \end{array}
+ \Big)$.
+
+
+ Each data set contains 200 data points, so $n_a = n_b = 200$. The scatter plot of these data points is shown in figure 1.
+ \begin{figure}[h]
+  \centering
+  \includegraphics[width=0.45\textwidth]{images/figure1.png}
+  \caption{Scatter plot of data points}
+ \end{figure}
+
+    \subsubsection{Explore the consequences of projecting data onto a lower dimension}
+    
+    In this part, giving three initial values to $\omega$, 
+    $\omega_1 = 
+    \Big(
+    \begin{array}{cc}
+      1 \\
+      3
+    \end{array}
+    \Big)$,
+    $\omega_2 = 
+    \Big(
+    \begin{array}{cc}
+      1 \\
+      1
+    \end{array}
+    \Big)$,
+    $\omega_3 = 
+    \Big(
+    \begin{array}{cc}
+      -1 \\
+      1
+    \end{array}
+    \Big)$. Then according to $y^n_c = x^n_c\omega, c\in\{a,b\}$,the histograms of the distributions of these data points after projected are shown in figure 2:
+    \begin{figure}[h]
+      \includegraphics[width=0.7\textwidth]{images/figure2.png}
+      \centering
+      \caption{Histograms of projecting data points by different $\omega$}
+    \end{figure}
+
+    From these three histograms, it is clear that $\omega_1$ and $\omega_2$ can separate type A and type B much better than $\omega_3$.
+    Next, if rotating the initial $\omega_1$ by angle $\theta$, according to the expression of the Fisher ratio and the expression of $R(\theta)$,
+    \begin{equation*}
+      F(\omega) = \frac{(\mu_a - \mu_b)^2}{\frac{n_a}{n_a + n_b}\sigma^2_a + \frac{n_b}{n_a + n_b}\sigma^2_b} \
+    \end{equation*}
+
+    \begin{equation*}
+    R(\theta) = \bigg(
+    \begin{array}{cc}
+    \cos\theta & -\sin\theta \\
+    \sin\theta & \cos\theta
+    \end{array}
+    \bigg)
+    \end{equation*}
+
+    \begin{equation*}
+    \omega(\theta) = R(\theta)\omega(0)
+    \end{equation*}
+    
+    the relationship between $F(\omega)$ and rotating angle $\theta$ are shown in figure 3.
+    \begin{figure}[h]
+    \centering
+    \includegraphics[width=0.4\textwidth]{images/figure3.png}
+    \caption{The dependence of $F(\omega)$  on the rotating angle $\theta$}
+    \end{figure}
+
+    Through iterating $\theta \in (0,\pi)$ 1000 times and comparing the corresponding $F(\theta)$, we can get the optimal $\theta^* = 0.1226$ and the optimal 
+    $\omega^* = 
+    \Big(
+    \begin{array}{cc}
+    0.6255 \\
+    3.0998
+    \end{array}
+    \Big)$.
+
+    \subsubsection{Probability distribution}
+    The equi-probable contour plot and the direction of the optimal choice of vector $\omega^*$ are shown in figure 4.
+    
+    \begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/figure4.png} 
+    \caption{Equi-probable contour and optimal $\omega^*$}
+    \end{figure}
+
+    According to Bayes' rules:
+    \begin{equation*}
+      \begin{aligned}
+    log-odds&= \ln\bigg( \frac{P(c=a|x^n)}{P(c=b|x^n)}\ \bigg) \\
+            &= \ln \bigg( \frac{P(x^n|c=a)P(c=a)}{P(x^n|c=b)P(c=b)}\  \bigg) \\
+            &= \ln\bigg(\frac{P(x^n|c=a)}{P(x^n|c=b)}\ \bigg) + \ln\bigg(\frac{P(c=a)}{P(c=b)}\ \bigg)
+      \end{aligned}
+    \end{equation*}
+
+    so when I set $log-odds=0$, I got a list of data points on the decision boundary. As you can see in figure 5, the shapes of dicision boundaries for $S_a = S_b$ and $S_a \neq S_b$ are different, it is a straight line when $S_a = S_b$ and a curve when $S_a \neq S_b$.
+
+    \begin{figure}[h]
+      \centering
+      \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=1\linewidth]{images/figure5_1.png}
+        \caption{$S_a = S_b$}
+      \end{subfigure}%
+      ~
+      \begin{subfigure}[b]{0.45\textwidth}
+        \centering 
+        \includegraphics[width=1\linewidth]{images/figure5_2.png}
+        \caption{$S_a \neq S_b$}
+      \end{subfigure}
+      \caption{Decision boundary}
+    \end{figure}
+
+
+    \subsubsection{Explore the consequence of using unbalanced Fishers' ratio formula}
+      If using the formula
+      \begin{equation*}
+        F_{unbalanced}(\omega) = \frac{(\mu_a-\mu_b)^2}{\sigma^2_a+\sigma^2_b} \
+      \end{equation*}
+      which does not account for the different fractions of data in each class to calculate the optimal $\omega^*$, and the result is 
+      $\theta=0.1478$
+      $\omega^*=\Big(
+      \begin{array}{cc}
+        0.5473 \\
+        3.1146
+      \end{array}
+      \Big)$
+      , almost equivalant to the result got from using the formula $F(\omega)$, which means that the fractions of data in each class has no significant influence in finding the optimal $\omega^*$. However, according to Bayes' rule, $log-odds = \ln\bigg(\frac{P(x^n|c=a)}{P(x^n|c=b)}\ \bigg) + \ln\bigg(\frac{P(c=a)}{P(c=b)}\ \bigg)$, for example, if the fraction of class A is much bigger than the fraction of type B, the value of  $\ln\bigg( \frac{P(c=a)}{P(c=b)}\ \bigg)$ will be extremely big/small, even tend to be infinity/negative infinity. Thus the value of $log-odds$ will always bigger/smaller than 0 in this case, which will leads to a result that this model can not separate the data set into two classes. 
+
+  
+
+  \subsection{Data 2: Iris Data}
+
+    \subsubsection{Find the optimal direction $\omega^*$}
+      To find the optimal direction $\omega^*$ which can separate the three classes of iris best, first, calculate the mean vectors of them, and the results are 
+      $\mu_0=
+      \Bigg(
+      \begin{array}{c}
+        5.006 \\
+        3.418 \\
+        1.464 \\
+        0.244
+      \end{array}
+      \Bigg)$,
+      $\mu_1=
+      \Bigg(
+      \begin{array}{c}
+        5.936 \\
+        2.770 \\
+        4.260 \\
+        1.326
+      \end{array}
+      \Bigg)$ and
+      $\mu_2=
+      \Bigg(
+      \begin{array}{c}
+        6.588 \\
+        2.974 \\
+        5.552 \\
+        2.026
+      \end{array}
+      \Bigg)$. Next, we can get the within-class covariance matrix $\Sigma_W$ and the between-class covariance matrix $\Sigma_B$ according to the formula $\Sigma_B = \sum_{c} \frac{N_c}{N}\ (\mu_c-\mu)(\mu_c-\mu)^T$. Entering this step, I got 4 eigenvalues and 4 eigenvectors, the optimal eigenvalue and corresponding eigenvector are $\lambda^*=0.327$ and 
+      $\omega^*=
+      \Bigg(
+      \begin{array}{c}
+        0.2536 \\
+        -0.1204 \\
+        0.7233 \\
+        0.6309
+      \end{array}
+      \Bigg)$
+      through picking out the maximum eigenvalue.
+
+    \subsubsection{histograms of the three classes}
+      After projecting the data points by the optimal eigenvector $\omega^*$, the histograms of the three classes of iris data in 1-D dimension looks like figure 6(a).
+      \begin{figure}[h]
+        \centering
+        \begin{subfigure}[b]{0.45\textwidth}
+          \centering
+          \includegraphics[width=1\textwidth]{images/figure6.png}
+          \caption{Project data by $\omega = \omega^*$}
+        \end{subfigure}%
+        ~
+        \begin{subfigure}[b]{0.45\textwidth}
+          \centering
+          \includegraphics[width=1\textwidth]{images/figure7.png}
+          \caption{Project data by $\omega = \omega^* + \alpha$}
+        \end{subfigure}
+        \caption{LDA:Iris projection onto 1-D dimension}
+      \end{figure}
+    
+    \subsubsection{Project on a different vector $\omega = \omega^* + \alpha$}
+      When I use the vector $\omega = \omega^* + \alpha$ ($\alpha$ is another eigenvector), the histogram looks like figure 6(b). It is clear that the area of the overlap part is larger than previous, I think this because of that the direction of eigenvector can retain some features of the meta data points. Thus if I want to project these data on $\omega = \omega^* + \alpha$, I should choose $\alpha$ out of generalised eigenvectors.
+      
+  \subsection{Compare}
+    In the separation 2-gaussian task, the final optimal $\omega^*$ is definitely a engeivecter of the design matrix. meanwhile, the dicision boundary vector is orthogonal with the optimal projection vector $\omega^*$. But I must say that the method using generalised eigenvector is better than the method used in 2-gaussian separation excercise, because rotating angles to find the optimal projection direction only can be used when reducing data into 1-D dimension. In the iris data excercise, I noticed that different eigenvector can explain different proportion of information of data set, which means we need to use 2 or more eigenvectors to do the dimensionality reduction task to reserve as much information as possible. But the rotating way can not achieve this.
+    
+
+
+\section{Linear Regression with non-linear functions}
+\label{sec:Linear Regression}
+
+  
+  \subsection{Performing linear regression}
+    As usual, I generate 40 data points and separate them into training set $S_tr$ and test set $S_ts$, each of them contains 20 data points. These data points satisfy the condition that $y(x) = \sin(x) + \epsilon, \epsilon \sim N(0, 0.2), x \in [0, 2\pi]$. The scatter plots of the training set and test set are shown in figure 7.
+    \begin{figure}[h]
+      \centering
+      \includegraphics[width=0.9\textwidth,height=5cm]{images/figure8.png}    
+      \caption{Scatter plot of Training set and Test set}
+    \end{figure}
+
+    \subsubsection{Learn the weights by gradient descent}
+    When trying to fit these data points with polynomial function, I need to find the optimal degree $p$ of weight $\omega$ and then minimise the loss function 
+    \begin{equation*}
+      \sum_{n=1}^N \Big(y^n-\omega_0- \sum_{j=1}^p \omega_j \Phi_j(x^n)  \Big)^2 + \lambda C(\omega)
+    \end{equation*}
+    by gradient descent. The expressions used in the processes of gradient descent are as followings:
+    \begin{equation*}
+      \begin{aligned}
+        (\nabla_{\omega}L)_i &= \frac{\partial L}{\partial \omega_i}\ \\
+        &= 2 \sum_{n=1}^N \Big[ y^n-\big(\omega_0 + \sum_{j=1}^p \omega_j \Phi_j (x^n) \big) \Big]  \\
+        &= -2 \sum_{k=1}^N A_{ij} \big(y_k - (\omega_0 + \sum_{j=1}^p \omega_j A_{ij} \big)  \\
+        &= -2 [A^T (y-A_{designmat} \omega)]_i
+      \end{aligned}
+    \end{equation*}
+    \begin{equation*}
+      \begin{aligned}
+        C(\omega) = \| \omega \|_2^2 = \sum_{i=1}^p \omega_i^2
+      \end{aligned}
+    \end{equation*}
+    \begin{equation*}
+      \begin{aligned}
+        \omega_{i+1} = \omega_i - \eta (\nabla_{\omega}L)
+      \end{aligned}
+    \end{equation*}
+    As for the value of $p$, I tried to give 2 to 5 one by one and then observed the figures to decide which is the best value of $p$.
+    \begin{figure}[h]
+      \centering
+      \begin{minipage}[b]{0.45\textwidth}
+        \includegraphics[width=1\textwidth]{images/figure10.png}
+        \subcaption{$p=2, \lambda=0.5, \eta=0.0001$}
+        \includegraphics[width=1\textwidth]{images/figure11.png}
+        \subcaption{$p=3, \lambda=0.5, \eta=0.000001$}
+      \end{minipage}%
+      \hspace{0.04\textwidth}%
+      \begin{minipage}[b]{0.45\textwidth}
+        \includegraphics[width=1\textwidth]{images/figure12.png}
+        \subcaption{$p=4, \lambda=0.5, \eta=0.00000006$}
+        \includegraphics[width=1\textwidth]{images/figure13.png}
+        \subcaption{$p=5, \lambda=0.5, \eta=0.000000001$}
+      \end{minipage}
+      \caption{Fitting results of different degree of polynomial by gradient descent}
+    \end{figure}
+    Through comparing the plots in figure 8, I can roughly say that $p=3$ is the optimal value of the degree of the polynomial function. However, when I use gradient descent to find the optimal value of $\omega$, it is hard to find a line which can fit the data points relatively perfect, this means that the gradient descent is easy to fall into local optimum.
+
+  \subsubsection{Obtain weights from a certain analytical expression}
+    In this part, I plot figures for different values of $p$. The expressions I used in this parts is:
+    \begin{equation*}
+      \omega = (X^TX + \lambda I_{p+1})^{-1} X^Ty
+    \end{equation*}
+    And the fitting results are shown in figure 9. It is obvious that the fitting results are better than those of gradient descent.
+    \begin{figure}[h]
+      \centering
+      \includegraphics[width=0.7\textwidth]{images/figure14.png}
+      \caption{Obtain $\omega$ from the analytical expression for different $p$}
+    \end{figure}
+
+    \subsubsection{Measure the performance of model}
+    The relationship between mean of the squared residuals and the degree($p$) of the polynomial are shown in figure 10.
+    \begin{figure}[h]
+      \centering
+      \includegraphics[width=0.4\textwidth]{images/figure15.png}
+      \caption{Error of the model with the degree of the polynomial}
+    \end{figure}
+    Through this line chart, I find that if we fix the value of $\lambda$, mean of the squared residuals will reach the bottom at $p=3$.
+    Moreover, we can observe the strength of the regularisation coefficient $\lambda$ through the value change of mean of the squared residuals in figure 11.
+    At the beginning, I chose $\lambda$ from a large range, but I found that the value of the mean of the squared residuals slightly decrease in the range around $(0,1)$, and then dramatically go up. Thus I zoom out the range of $\lambda$ to $(0,1)$, the trends of the error can be clearly seen. From this figure, I can say that the optimal value of $\lambda$ is approximately 0.5.
+    \begin{figure}[h]
+      \centering
+      \includegraphics[width=0.4\textwidth]{images/figure16.png}
+      \caption{The strength of the regularisation coefficient $\lambda$}
+    \end{figure}
+    
+
+  \subsection{How does linear regression generalise?(10-fold cross-validation)}
+  In this part, I generated a new data set which contains 200 data points and seperated them into 10 equal parts. Next, let each of them to be the test set for one time to test the performance of the model got from the other 9 data sets. Meanwhile, I set $p=3, \lambda=0.5$ this time, which are the optimal value of them according to the conclusion drewn from 2.1.3. The plots of this ten training sets and the training results can be seen in figure 12.
+  \begin{figure}[h]
+    \centering
+    \begin{minipage}[b]{0.45\textwidth}
+        \includegraphics[width=1\textwidth]{images/figure17.png}
+        \subcaption{Fold 1}
+        \includegraphics[width=1\textwidth]{images/figure18.png}
+        \subcaption{Fold 2}
+        \includegraphics[width=1\textwidth]{images/figure19.png}
+        \subcaption{Fold 3}
+        \includegraphics[width=1\textwidth]{images/figure20.png}
+        \subcaption{Fold 4}
+        \includegraphics[width=1\textwidth]{images/figure21.png}
+        \subcaption{Fold 5}
+      \end{minipage}%
+      \hspace{0.04\textwidth}%
+      \begin{minipage}[b]{0.45\textwidth}
+        \includegraphics[width=1\textwidth]{images/figure22.png}
+        \subcaption{Fold 6}
+        \includegraphics[width=1\textwidth]{images/figure23.png}
+        \subcaption{Fold 7}
+        \includegraphics[width=1\textwidth]{images/figure24.png}
+        \subcaption{Fold 8}
+        \includegraphics[width=1\textwidth]{images/figure25.png}
+        \subcaption{Fold 9}
+        \includegraphics[width=1\textwidth]{images/figure26.png}
+        \subcaption{Fold 10}
+      \end{minipage}
+      \caption{10-folds cross-vallidation}
+  \end{figure}
+  Every iteration generated a value of $\omega$, so I chose the mean value 
+  $\omega^* = 
+  \Bigg(
+    \begin{array}{c}
+      -0.2647 \\
+      1.9666  \\
+      -0.9026 \\
+      0.0958
+    \end{array}
+  \Bigg)$
+  of these 10 $\omega$ as the final optimal value. Finally, I chose the mean of the squared residuals which is around $error = 0.045405$ as the mean error to evaluate the performance of the models. 
+
+
+
+
+\end{document}
